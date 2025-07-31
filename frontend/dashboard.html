@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin</title>
+  <link rel="stylesheet" href="/frontend/css/style.css">
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const jam = now.getHours().toString().padStart(2, '0');
+      const menit = now.getMinutes().toString().padStart(2, '0');
+      const detik = now.getSeconds().toString().padStart(2, '0');
+      document.getElementById("clock").textContent = jam + ":" + menit + ":" + detik;
+    }
+
+    setInterval(updateClock, 1000);
+    window.onload = updateClock;
+  </script>
+</head>
+<body>
+  <!-- Navigasi -->
+  <nav>
+    <ul>
+      <li><a href="/frontend/admin.html">Admin</a></li>
+      <li><a href="/frontend/index.html">Absen</a></li>
+      <li><a href="/frontend/dashboard.html">Dashboard</a></li>
+    </ul>
+  </nav>
+
+  <!-- Header -->
+  <header>
+    <div id="logo">
+      <img src="/frontend/img/logobme - Diedit.png" alt="Logo Sekolah" width="50" />
+      <h1>Absensi Siswa</h1>
+    </div>
+    <div id="clock">00:00:00</div>
+  </header>
+
+  <!-- Dashboard Konten -->
+  <main>
+    <h2>Dashboard Absensi</h2>
+    <!-- Ringkasan Kehadiran -->
+    <section>
+      <h3>Statistik Hari Ini</h3>
+      <ul>
+        <li>Hadir: <span id="hadir-count">0</span></li>
+        <li>Izin: <span id="izin-count">0</span></li>
+        <li>Sakit: <span id="sakit-count">0</span></li>
+        <li>Alpha: <span id="alpha-count">0</span></li>
+      </ul>
+    </section>
+    <!-- Rekap Bulanan -->
+    <section>
+      <h3>Rekap Bulanan</h3>
+      <button id="btn-export-excel">Export Excel</button>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Hadir</th>
+            <th>Izin</th>
+            <th>Sakit</th>
+            <th>Alpha</th>
+            <th>Tanggal</th>
+            <th>Waktu</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="data-absensi"></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="/js/main.js"></script>
+  <script>
+    // Fetch and render Rekap Bulanan
+    fetch('http://localhost:3000/api/absensi/bulanan')
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById('data-absensi');
+        tbody.innerHTML = '';
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.nama}</td>
+            <td>${row.hadir}</td>
+            <td>${row.izin}</td>
+            <td>${row.sakit}</td>
+            <td>${row.alpha}</td>
+            <td>${row.tanggal}</td>
+            <td>${row.waktu}</td>
+            <td><button onclick="hapusData(${row.id})">Hapus</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+    // Fetch and render Statistik Hari Ini
+    fetch('http://localhost:3000/api/absensi/statistik-hari-ini')
+      .then(res => res.json())
+      .then(stat => {
+        document.getElementById('hadir-count').textContent = stat.hadir;
+        document.getElementById('izin-count').textContent = stat.izin;
+        document.getElementById('sakit-count').textContent = stat.sakit;
+        document.getElementById('alpha-count').textContent = stat.alpha;
+      });
+
+    // Hapus data absensi
+    function hapusData(id) {
+      if (confirm("Yakin ingin hapus data ini?")) {
+        fetch(`http://localhost:3000/api/absensi/hapus/${id}`, {
+          method: "DELETE"
+        })
+          .then(res => res.json())
+          .then(response => {
+            alert(response.message);
+            location.reload();
+          })
+          .catch(err => {
+            console.error("❌ Gagal hapus:", err);
+            alert("Gagal menghapus data");
+          });
+      }
+    }
+    document.getElementById('btn-export-excel').addEventListener('click', () => {
+  // Ambil elemen tabel yang sudah tampil di halaman
+  const table = document.querySelector('table');
+  if (!table) return alert('Tabel tidak ditemukan.');
+
+  // Convert ke workbook & download
+  const wb = XLSX.utils.table_to_book(table, { sheet: 'Absensi' });
+  XLSX.writeFile(wb, `absensi_${new Date().toISOString().slice(0,10)}.xlsx`);
+});
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</body>
+</html>
+  </script>
+</body>
+</html>

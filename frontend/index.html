@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Absensi Siswa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/frontend/css/style.css" />
+  <script>
+  function updateClock() {
+    const now = new Date();
+    const jam = now.getHours().toString().padStart(2, '0');
+    const menit = now.getMinutes().toString().padStart(2, '0');
+    const detik = now.getSeconds().toString().padStart(2, '0');
+    document.getElementById("clock").textContent = jam + ":" + menit + ":" + detik;
+  }
+
+  setInterval(updateClock, 1000);
+  window.onload = updateClock;
+  </script>
+
+</head>
+<body>
+<!-- Navigasi -->
+ <nav>
+    <ul>
+        <li><a href="/frontend/admin.html">Admin</a></li>
+        <li><a href="/frontend/index.html">Absen</a></li>
+        <li><a href="/frontend/dashboard.html">Dashboard</a></li>
+    </ul>
+ </nav>
+
+  <!-- Header -->
+  <header>
+    <div id="logo">
+      <img src="/frontend/img/logobme - Diedit.png" alt="Logo Sekolah" width="50" />
+      <h1>Absensi Siswa</h1>
+    </div>
+    <div id="clock">00:00:00</div>
+  </header>
+
+  <!-- Form Absensi -->
+  <main>
+    <h2>Formulir Absensi</h2>
+    <form action="#" method="POST">
+      <label for="nama">Nama:</label>
+      <input type="text" name="nama" placeholder="nama lengkap" id="nama" required /><br />
+
+      <label for="no_induk">No Induk:</label>
+      <input type="text" name="no_induk" placeholder="1356.34.987" id="no_induk" required /><br />
+
+      <label for="jurusan">Jurusan:</label>
+      <select name="jurusan" id="jurusan" required>
+        <option value=""> Pilih Jurusan </option>
+        <option value="TKJ">TKJ</option>
+        <option value="TAV">TAV</option>
+        <option value="TKR">TKR</option>
+      </select><br />
+
+      <p>Status Kehadiran:</p>
+      <div class="form-radio-group">
+        <input type="radio" name="status" value="Hadir" id="hadir" required />
+        <label for="hadir">Hadir</label>
+
+        <input type="radio" name="status" value="Izin" id="izin" />
+        <label for="izin">Izin</label>
+
+        <input type="radio" name="status" value="Sakit" id="sakit" />
+        <label for="sakit">Sakit</label>
+
+        <input type="radio" name="status" value="Alpha" id="alpha" />
+        <label for="alpha">Alpha</label>
+      </div><br />
+
+      <button type="submit">Absensi</button>
+    </form>
+  </main>
+
+  <!-- Riwayat Absensi -->
+  <section>
+    <h2>Riwayat Absensi</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>No Induk</th>
+          <th>Jurusan</th>
+          <th>Status</th>
+          <th>Tanggal</th>
+          <th>Jam</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data akan bertambah -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Tombol Export -->
+  <section>
+    <button type="dok">Export ke Excel</button>
+    <button type="dok">Export ke PDF</button>
+  </section>
+<script src="/frontend/js/main.js"></script>
+<script>
+  // Fetch and render Riwayat Absensi
+  fetch('http://localhost:3000/api/absensi/list')
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.querySelector('section table tbody');
+      tbody.innerHTML = '';
+      data.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${row.nama}</td>
+          <td>${row.no_induk}</td>
+          <td>${row.jurusan}</td>
+          <td>${row.status}</td>
+          <td>${row.tanggal}</td>
+          <td>${row.jam}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+</script>
+</body>
+</html>

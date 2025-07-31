@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Admin</title>
+    <link rel="stylesheet" href="/frontend/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script>
+      function updateClock() {
+        const now = new Date();
+        const jam = now.getHours().toString().padStart(2, "0");
+        const menit = now.getMinutes().toString().padStart(2, "0");
+        const detik = now.getSeconds().toString().padStart(2, "0");
+        document.getElementById("clock").textContent =
+          jam + ":" + menit + ":" + detik;
+      }
+
+      setInterval(updateClock, 1000);
+      window.onload = updateClock;
+    </script>
+  </head>
+
+  <body>
+    <!-- Navigasi -->
+  <!-- Navigasi -->
+  <nav>
+    <ul>
+      <li><a href="/frontend/admin.html">Admin</a></li>
+      <li><a href="/frontend/index.html">Absen</a></li>
+      <li><a href="/frontend/dashboard.html">Dashboard</a></li>
+    </ul>
+  </nav>
+
+  <!-- Header -->
+  <header>
+    <div id="logo">
+      <img src="/frontend/img/logobme - Diedit.png" alt="Logo Sekolah" width="50" />
+      <h1>Absensi Siswa</h1>
+    </div>
+    <div id="clock">00:00:00</div>
+  </header>
+
+    <!-- Login Form -->
+    <main>
+      <div class="admin-login-container">
+        <form id="loginForm" class="admin-login-form">
+          <h2>Login Admin</h2>
+          <input type="text" placeholder="Username" id="username" required />
+
+          <div style="position: relative">
+            <input
+              type="password"
+              placeholder="Password"
+              id="password"
+              required
+              style="padding-right: 40px"
+            />
+            <i
+              class="fa-solid fa-eye"
+              id="togglePassword"
+              style="
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                cursor: pointer;
+              "
+            ></i>
+          </div>
+
+          <button type="submit">Login</button>
+        </form>
+      </div>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // Password toggle
+          const togglePassword = document.getElementById("togglePassword");
+          const passwordInput = document.getElementById("password");
+          togglePassword.addEventListener("click", function () {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            this.classList.toggle("fa-eye");
+            this.classList.toggle("fa-eye-slash");
+          });
+
+          // Login submit
+          document
+            .getElementById("loginForm")
+            .addEventListener("submit", function (e) {
+              e.preventDefault();
+
+              const data = {
+                username: document.getElementById("username").value,
+                password: document.getElementById("password").value,
+              };
+
+              fetch("http://localhost:3000/api/admin/login", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              })
+                .then((res) => res.json())
+                .then((result) => {
+                  if (result.message === "Login sukses") {
+                    window.location.href = "dashboard.html";
+                  } else {
+                    alert("Login gagal: " + result.message);
+                  }
+                })
+                .catch((err) => {
+                  console.error("Login error:", err);
+                  alert("Gagal login. Pastikan server aktif.");
+                });
+            });
+        });
+      </script>
+    </main>
+  </body>
+</html>
